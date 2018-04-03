@@ -26,6 +26,10 @@ pub struct Lexeme<'a> {
     pub column: usize,
 }
 
+pub enum LexError {
+    UnrecognizedInput { line: usize, column: usize },
+}
+
 // All the patterns that are used to match stuff
 lazy_static! {
     static ref KEYWORDS: HashSet<&'static str> = HashSet::from_iter(vec![
@@ -57,7 +61,7 @@ fn get_next_token<'a>(current_input: &'a str) -> Option<(&'a str, &'a str, Lexem
         .or_else(|| try_get(current_input, &INT_LITERAL_REGEX, |s| LexemeKind::IntLiteral(s.parse().unwrap())))
 }
 
-pub fn lex_str(input: &str) -> Option<Vec<Lexeme>> {
+pub fn lex_str(input: &str) -> Result<Vec<Lexeme>, LexError> {
     let mut result = Vec::new();
     let mut current_input = input;
     let mut current_line: usize = 1;
@@ -102,7 +106,14 @@ pub fn lex_str(input: &str) -> Option<Vec<Lexeme>> {
         }
     }
 
-    Some(result)
+    if !current_input.is_empty() {
+        return Err(LexError::UnrecognizedInput {
+            line: current_line,
+            column: current_column,
+        })
+    }
+
+    Ok(result)
 }
 
 #[cfg(test)]
