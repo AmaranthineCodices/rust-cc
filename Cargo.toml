@@ -1,0 +1,8 @@
+[package]
+name = "rust-cc"
+version = "0.1.0"
+authors = ["AmaranthineCodices <AmaranthineCodices@gmail.com>"]
+
+[dependencies]
+regex = "0.2.10"
+lazy_static = "1.0.0"
