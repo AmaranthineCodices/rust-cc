@@ -56,9 +56,18 @@ where F: Fn(&'a str) -> LexemeKind<'a>,
     }
 }
 
+fn convert_identifier_str<'a>(identifier: &'a str) -> LexemeKind<'a> {
+    if KEYWORDS.contains(identifier) {
+        LexemeKind::Keyword(identifier)
+    }
+    else {
+        LexemeKind::Identifier(identifier)
+    }
+}
+
 fn get_next_token<'a>(current_input: &'a str) -> Option<(&'a str, &'a str, LexemeKind<'a>)> {
     try_get(current_input, &WHITESPACE_REGEX, |s| LexemeKind::Whitespace(s))
-        .or_else(|| try_get(current_input, &IDENTIFIER_REGEX, |s| LexemeKind::Identifier(s)))
+        .or_else(|| try_get(current_input, &IDENTIFIER_REGEX, convert_identifier_str))
         .or_else(|| try_get(current_input, &INT_LITERAL_REGEX, |s| LexemeKind::IntLiteral(s.parse().unwrap())))
 }
 
@@ -150,7 +159,7 @@ mod test {
             Lexeme {
                 kind: LexemeKind::Identifier("test"),
                 line: 1,
-                column: 1
+                column: 1,
             },
             Lexeme {
                 kind: LexemeKind::Identifier("foo"),
@@ -161,6 +170,23 @@ mod test {
                 kind: LexemeKind::Identifier("bar"),
                 line: 1,
                 column: 10,
+            }
+        ]);
+    }
+
+    #[test]
+    fn lexing_identifiers_vs_keywords() {
+        let lexed = lex_str("test return").unwrap();
+        assert_eq!(lexed, vec![
+            Lexeme {
+                kind: LexemeKind::Identifier("test"),
+                line: 1,
+                column: 1,
+            },
+            Lexeme {
+                kind: LexemeKind::Keyword("return"),
+                line: 1,
+                column: 6,
             }
         ]);
     }
