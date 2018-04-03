@@ -235,4 +235,21 @@ mod test {
             },
         ]);
     }
+
+    #[test]
+    fn int_literals() {
+        let lexed = lex_str("123 456").unwrap();
+        assert_eq!(lexed, vec![
+            Lexeme {
+                kind: LexemeKind::IntLiteral(123),
+                line: 1,
+                column: 1,
+            },
+            Lexeme {
+                kind: LexemeKind::IntLiteral(456),
+                line: 1,
+                column: 5,
+            }
+        ]);
+    }
 }
