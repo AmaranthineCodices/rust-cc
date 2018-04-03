@@ -26,6 +26,7 @@ pub struct Lexeme<'a> {
     pub column: usize,
 }
 
+#[derive(Debug)]
 pub enum LexError {
     UnrecognizedInput { line: usize, column: usize },
 }
